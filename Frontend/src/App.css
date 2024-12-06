@@ -1,0 +1,338 @@
+body {
+  font-family: "Amazon Ember";
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  overflow-x: hidden;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Header */
+.fixed-top-navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1030;
+  height: 80px;
+}
+
+main {
+  padding-top: 0px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand img {
+  height: 50px;
+  margin-right: -25px;
+}
+
+
+/* Home page card */
+
+.card-img-top {
+  height: 250px;
+  object-fit: cover;
+  /* border: 0.5px solid black; */
+  /* border-radius: 3px; */
+  box-shadow: 0px 0px 0.5px 0.5px rgba(0, 0, 0, 0.5);
+}
+
+.card-img-top:hover {
+  transform: translateY(-0.5x);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* bookingHistory.css */
+
+.booking-history-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 65px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #343a40;
+  font-weight: 600;
+}
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.booking-table th,
+.booking-table td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.booking-table th {
+  background-color: #343a40;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.booking-table td {
+  background-color: #ffffff;
+  color: #343a40;
+}
+
+.booking-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.booking-table .paid {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.booking-table .unpaid {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-container .page-item.active .page-link {
+  background-color: #343a40;
+  border-color: #343a40;
+  color: #ffffff;
+}
+
+.pagination-container .page-link {
+  color: #343a40;
+  font-weight: 500;
+}
+
+.pagination-container .page-link:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+
+/* for SignIn and SignUp page */
+
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #302e2e 0%, #171717c7 100%);
+  margin-top: 35px;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-box h2 {
+  font-weight: bold;
+  color: #333;
+}
+
+.divider {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.divider span {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.auth-containerUp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  background: linear-gradient(135deg, #302e2e 0%, #171717c7 100%);
+  padding-top: 15px;
+  margin-top: 80px;
+  padding-bottom: 15px;
+}
+
+
+/* for game card  */
+/* Container settings for GamePage */
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Turf Card Styling */
+.sport-card {
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+}
+
+.sport-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Image settings within the turf cards */
+.sport-card-img {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Title and text adjustments */
+.card-title {
+  font-weight: 600;
+  color: #333333;
+}
+
+.card-text.price {
+  color: #007bff;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* Button styling for 'Book Now' */
+.btn-primary {
+  border-radius: 8px;
+  background-color: #007bff;
+  border-color: #007bff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+/* Updated TurfDetails page styling */
+
+/* Turf Details Card */
+.turf-details-card {
+  background: #fff;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.turf-details-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Turf Name */
+.turf-name {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #343a40;
+}
+
+/* Turf Description */
+.turf-description {
+  font-size: 1.1rem;
+  color: #6c757d;
+  line-height: 1.6;
+}
+
+/* Turf Price */
+.turf-price {
+  font-size: 1.5rem;
+  color: #007bff;
+}
+
+.price-tag {
+  font-weight: bold;
+}
+
+.price-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* Custom Button */
+.custom-button {
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #007bff;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.custom-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-3px);
+}
+
+/* Carousel Styling */
+.turf-carousel img {
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+
+/* background video  for Home Page*/
+
+.static-content {
+  position: relative;
+  width: 100%;
+  height: 89vh;
+  overflow: hidden;
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.content-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 2;
+}
+
+.content-overlay h1 {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.content-overlay p {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
