@@ -175,13 +175,13 @@ h2 {
 
 
 /* for game card  */
-/* Container settings for GamePage */
+/* Container settings for SportDetails page */
 .container {
   max-width: 1200px;
   margin: auto;
 }
 
-/* Turf Card Styling */
+/* Sport Card Styling */
 .sport-card {
   border: none;
   border-radius: 10px;
@@ -194,7 +194,7 @@ h2 {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Image settings within the turf cards */
+/* Image settings within the sport cards */
 .sport-card-img {
   height: 200px;
   object-fit: cover;
