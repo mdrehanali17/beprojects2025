@@ -1,10 +1,7 @@
-// Signup.js
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook, FaGithub } from 'react-icons/fa';
+
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -76,12 +73,6 @@ const Signup = () => {
                     <div className='divider'>
                         <span>or</span>
                     </div>
-                    <button className='btn btn-light w-100 mb-2'>
-                        <FcGoogle size={20} /> Sign up with Google
-                    </button>
-                    <button className='btn btn-primary w-100 mb-2'>
-                        <FaFacebook size={20} /> Sign up with Facebook
-                    </button>
                     <div className='text-center mt-3'>
                         <p>Already have an account? <Link to='/signin'>Sign in</Link></p>
                     </div>

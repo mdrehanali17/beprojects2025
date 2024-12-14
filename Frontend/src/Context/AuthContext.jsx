@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
@@ -21,7 +20,6 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post('http://127.0.0.1:8000/api/signin/', {
                 email: email,
                 password: password,
-                
             });
 
             const data = response.data;
@@ -48,7 +46,7 @@ export const AuthProvider = ({ children }) => {
                 alert('Something went wrong!');
             }
         } catch (error) {
-            throw error
+            console.error('Login error:', error);
         }
     };
 
@@ -63,39 +61,41 @@ export const AuthProvider = ({ children }) => {
         if (authTokens) {
             const decodedToken = jwtDecode(authTokens.access);
 
-            // Fetch additional user details from backend after token refresh or initial load
-            const fetchUserDetails = async () => {
-                try {
-                    const userDetailsResponse = await axios.get(`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`);
-                    const userDetails = userDetailsResponse.data;
+            if (decodedToken.exp * 1000 < Date.now()) {
+                // Token is expired, log out user
+                logoutUser();
+            } else {
+                // Fetch additional user details after token refresh or initial load
+                const fetchUserDetails = async () => {
+                    try {
+                        const userDetailsResponse = await axios.get(`http://127.0.0.1:8000/api/users/${decodedToken.user_id}/`);
+                        const userDetails = userDetailsResponse.data;
 
-                    // Update user object with additional details (phone_number, id, etc.)
-                    setUser(prevUser => ({
-                        ...prevUser,
-                        id: userDetails.id,
-                        username: userDetails.username,
-                        phone_number: userDetails.phone_number,
-                    }));
+                        setUser(prevUser => ({
+                            ...prevUser,
+                            id: userDetails.id,
+                            username: userDetails.username,
+                            phone_number: userDetails.phone_number,
+                        }));
+                    } catch (error) {
+                        console.error('Error fetching user details:', error);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
 
-                } catch (error) {
-                    console.error('Error fetching user details:', error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            fetchUserDetails();
+                fetchUserDetails();
+            }
         } else {
             setLoading(false);
         }
     }, [authTokens]);
 
-
     const contextData = {
         user,
         authTokens,
         signinUser,
-        logoutUser
+        logoutUser,
     };
 
     return (
@@ -103,6 +103,10 @@ export const AuthProvider = ({ children }) => {
             {loading ? null : children}
         </AuthContext.Provider>
     );
+};
+
+export const useAuth = () => {
+    return React.useContext(AuthContext);
 };
 
 export default AuthContext;

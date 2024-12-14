@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Modal, Carousel } from 'react-bootstrap';
-import SportBooking from './SportBooking'; // Adjust the import path as needed
+import SportBooking from './SportBooking'; 
+import { useAuth } from '../Context/AuthContext'; 
 
 const SportDetails = () => {
   const { id } = useParams();
+  const { user } = useAuth(); // Get the user from context (if authenticated)
+  
   const [sportDetails, setSportDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  // Ref to track if view count has been increased
+  const viewCountIncreased = useRef(false);
 
   useEffect(() => {
     const fetchSportDetails = async () => {
@@ -17,6 +23,15 @@ const SportDetails = () => {
         const response = await axios.get(`http://127.0.0.1:8000/api/sportDetails/${id}/`);
         setSportDetails(response.data);
         setLoading(false);
+        
+        // Only increase view count if user exists and view count has not been increased yet
+        if (user && !viewCountIncreased.current) {
+          console.log("Increasing view count");
+          await axios.post(`http://127.0.0.1:8000/api/increase_view_count/${id}/`, { user_id: user.id });
+          
+          // Set the ref to true after the view count is incremented
+          viewCountIncreased.current = true;
+        }
       } catch (err) {
         setError('Failed to fetch sport details.');
         setLoading(false);
@@ -24,7 +39,7 @@ const SportDetails = () => {
     };
 
     fetchSportDetails();
-  }, [id]);
+  }, [id, user]); // Only trigger when id or user changes
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -42,7 +57,7 @@ const SportDetails = () => {
   }
 
   return (
-    <div className="container text-center mt-4">
+    <div className="container text-center mt-5">
       <div className="carousel-container" style={{ maxWidth: '850px', margin: '0 auto' }}>
         <Carousel fade>
           {sportDetails.sport_images.map((imageObj, index) => (
@@ -74,7 +89,7 @@ const SportDetails = () => {
           <Modal.Title>Book Your Slot</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <SportBooking handleClose={handleCloseModal} sport_custom_id={sportDetails.sport_custom_id} sport_category={sportDetails.category} />
+          <SportBooking handleClose={handleCloseModal} sport_custom_id={sportDetails.sport_custom_id} sport_category={sportDetails.category} />
         </Modal.Body>
       </Modal>
     </div>

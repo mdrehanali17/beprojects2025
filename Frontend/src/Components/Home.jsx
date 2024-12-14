@@ -11,9 +11,9 @@ const Home = () => {
   const navigate = useNavigate();
 
   const videos = [
-    './public/images/football1.mp4',
-    './public/images/football2.mp4',
-    './public/images/basketball.mp4',
+    '/Images/football1.mp4',
+    '/Images/football2.mp4',
+    '/Images/basketball.mp4',
   ];   
 
   // Static game data for the "Choose a Game" section
@@ -60,8 +60,8 @@ const Home = () => {
         className="background-video"
       />
       <div className="content-overlay">
-        <h1>Welcome to AOne Turf</h1>
-        <p>Your one-stop destination for sports turf bookings. Choose your game and get started!</p>
+        <h1>Welcome to GearGo Sports</h1>
+        <p>Your one-stop destination for sports bookings. Choose your game and get started!</p>
       </div>
     </div>
   );

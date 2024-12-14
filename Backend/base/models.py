@@ -40,7 +40,6 @@ class CustomUser(AbstractUser):
         return self.email 
 
 
-
 # Sport Model
 class SportCategoryCounter(models.Model):
     category = models.CharField(max_length=100, unique=True)  # Each category has a unique counter
@@ -58,13 +57,13 @@ class SportDetails(models.Model):
     price = models.FloatField()
     sport_custom_id = models.CharField(max_length=20, unique=True, editable=False)  # Custom ID field
     created_at = models.DateTimeField(auto_now_add=True)
+    average_rating = models.FloatField(default=0.0)
 
     def save(self, *args, **kwargs):
         if not self.sport_custom_id:
             # Get or create a counter for the category
             counter, created = SportCategoryCounter.objects.get_or_create(category=self.category)
             
-            # Increment the count
             counter.count += 1
             counter.save()
             
@@ -83,7 +82,19 @@ class SportImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.sport.name} ({self.sport.sport_custom_id})"
-    
+
+
+class UserSportInteraction(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='sport_interactions')
+    sport = models.ForeignKey(SportDetails, on_delete=models.CASCADE, related_name='user_interactions')
+    view_count = models.PositiveIntegerField(default=0)
+    booking_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('user', 'sport')  # Ensures one entry per user-sport pair
+
+    def __str__(self):
+        return f"{self.user.email} - {self.sport.name}"
     
 #Booking Model
 class Booking(models.Model):
@@ -105,7 +116,17 @@ class Booking(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     booking_date = models.DateTimeField()
 
-    
+    def save(self, *args, **kwargs):
+        # Increment booking count
+        if not self.pk:  # New booking
+            interaction, created = UserSportInteraction.objects.get_or_create(
+                user=self.user,
+                sport=self.sport
+            )
+            interaction.booking_count += 1
+            interaction.save()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.booking_id
@@ -144,8 +165,31 @@ class TemporaryBookingData(models.Model):
     def __str__(self):
         return self.booking_id
 
-# For handling the images from the media folder 
 
+# Sport Review Model for Average Rating
+class SportReview(models.Model):
+    sport = models.ForeignKey(SportDetails, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField()
+    review = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_average_rating()
+
+    def update_average_rating(self):
+        sport = self.sport
+        average_rating = sport.reviews.aggregate(models.Avg('rating'))['rating__avg'] or 0
+        sport.average_rating = average_rating
+        sport.save(update_fields=['average_rating'])
+
+    def __str__(self):
+        return f"Review for {self.sport.name} by {self.user.email}"
+
+
+
+# For handling the images from the media folder 
 @receiver(post_delete, sender=SportImage)
 def delete_sport_image_file(sender, instance, **kwargs):
     if instance.image:

@@ -1,11 +1,8 @@
-// Signin.js
-
 import React, { useState, useContext } from 'react';
 import '../../App.css';
 import { Link } from 'react-router-dom';
 import AuthContext from '../../Context/AuthContext';
-import { FcGoogle } from 'react-icons/fc';
-import { FaFacebook, FaGithub } from 'react-icons/fa';
+
 
 const Signin = () => {
     const [username, setUsername] = useState("");
@@ -61,12 +58,6 @@ const Signin = () => {
                     <div className='divider'>
                         <span>or</span>
                     </div>
-                    <button className='btn btn-light w-100 mb-2'>
-                        <FcGoogle size={20} /> Sign in with Google
-                    </button>
-                    <button className='btn btn-primary w-100 mb-2'>
-                        <FaFacebook size={20} /> Sign in with Facebook
-                    </button>
                     <div className='text-center mt-3'>
                         <p>Do not have an account? <Link to='/signup'>Sign up</Link></p>
                     </div>

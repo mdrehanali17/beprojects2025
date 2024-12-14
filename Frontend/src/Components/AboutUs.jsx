@@ -9,8 +9,8 @@ const AboutUs = () => {
                 <h1 className="display-4 fw-bold">Know About Us</h1>
                 <div className="col-lg-6 mx-auto">
                     <p className="lead mb-4">
-                        Welcome to our platform, dedicated to revolutionizing how you book and enjoy Turf experiences
-                        across Nepal. As innovators in the industry, we believe that finding and booking Turf shouldn't be
+                        Welcome to our platform, dedicated to revolutionizing how you book and enjoy sport experiences.
+                        As innovators in the industry, we believe that finding and booking sport facility shouldn't be
                         complicated or stressful. Our mission is to make the process seamless and enjoyable for every user.
                         Get started today!
                     </p>
@@ -83,7 +83,6 @@ const AboutUs = () => {
                                 <use xlinkHref="#bootstrap"></use>
                             </svg>
                         </a>
-                        <p className="text-body-secondary">© 2024 All rights reserved</p>
                     </div>
                     <div className="col mb-3"></div>
                     <div className="col mb-3"></div>
@@ -100,13 +99,13 @@ const AboutUs = () => {
                             <li className="nav-item mb-2">
                                 <a href="mailto:AOneTurf@gmail.com" className="nav-link p-0 text-body-secondary">
                                     <img src="Images/email-icon.svg" alt="Email" width="20" height="20" className="me-2" />
-                                    AOneTurf@gmail.com
+                                    geargo.sports@gmail.com
                                 </a>
                             </li>
                             <li className="nav-item mb-2">
                                 <a href="https://www.instagram.com/example" className="nav-link p-0 text-body-secondary">
                                     <img src="Images/instagram-icon.svg" alt="Instagram" width="20" height="20" className="me-2" />
-                                    AOneTurfs
+                                    GearGo Sports
                                 </a>
                             </li>
                         </ul>

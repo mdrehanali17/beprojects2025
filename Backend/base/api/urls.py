@@ -18,6 +18,8 @@ urlpatterns = [
     path('sports/category/<str:category>/', views.sport_by_category, name='sport-by-category'),
 
     path('sportDetails/<int:id>/', views.sport_detail, name='sport_detail'),  
+    path('increase_view_count/<int:sport_id>/', views.increase_view_count, name='increase_view_count'),
+    path('recommendations/<int:user_id>/', views.recommendations_view, name='recommendations'),
 
 
     path('availability/', views.check_availability, name='check_availability'),

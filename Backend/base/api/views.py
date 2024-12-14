@@ -7,6 +7,9 @@ from django.conf import settings
 from django.db import transaction
 from django.db.utils import IntegrityError
 
+from base.recommendation import get_recommendations
+from django.views.decorators.http import require_POST
+
 
 from django.http import JsonResponse
 from django.utils.http import urlencode
@@ -17,7 +20,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from base.models import TemporaryBookingData, SportDetails, Booking, Payment, CustomUser
+from base.models import TemporaryBookingData, SportDetails, Booking, Payment, CustomUser, UserSportInteraction
 from .serializers import SportDetailsSerializer, UserSerializer, BookingSerializer, PaymentSerializer
 
 import uuid
@@ -133,6 +136,43 @@ def sport_detail(request, id):
         return Response(serializer.data)
     except SportDetails.DoesNotExist:
         raise Http404
+
+@api_view(['GET'])
+def recommendations_view(request, user_id):
+    try:
+        recommendations = get_recommendations(user_id)
+        return JsonResponse({'recommendations': recommendations}, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+#    View to increase the view count for a sport facility when a user clicks on it.
+@api_view(['POST'])
+def increase_view_count(request, sport_id):
+    try:
+        user_id = request.data.get('user_id')
+        sport = get_object_or_404(SportDetails, id=sport_id)
+
+        if not user_id:
+            return JsonResponse({'error': 'User ID is required'}, status=400)
+
+        user = get_object_or_404(CustomUser, id=user_id)
+
+        # Retrieve or create the interaction for the user and sport
+        user_interaction, created = UserSportInteraction.objects.get_or_create(
+            user=user,
+            sport=sport
+        )
+
+        # Increment the view count
+        user_interaction.view_count += 1
+        user_interaction.save()
+
+        return JsonResponse({'success': True, 'view_count': user_interaction.view_count})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
 
 # Booking Views
 class BookingListCreateView(generics.ListCreateAPIView):

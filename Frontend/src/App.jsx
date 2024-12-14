@@ -32,7 +32,9 @@ function App() {
               <Route path='/signin' element={<Signin />} />
               <Route path='/signup' element={<Signup />} />
               <Route path="/category/:category" element={<SportByCategory />} />
-              <Route path="/sports/:id" element={<SportDetails />} />
+              <Route path="/sports/:id" 
+                element={ <PrivateRoute element={<SportDetails />} />}
+              />              
               <Route path="/sport/:id/booking"
                 element={<PrivateRoute element={<SportBooking />} />}
               />
