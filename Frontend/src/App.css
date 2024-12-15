@@ -28,8 +28,10 @@ main {
 }
 
 .navbar-brand img {
-  height: 50px;
-  margin-right: -25px;
+  height: 80px;
+  width: 110px;
+  margin-right: -15px;
+  margin-left: 10px;
 }
 
 
@@ -335,4 +337,27 @@ h2 {
 .content-overlay p {
   font-size: 1.5rem;
   font-weight: 300;
+}
+
+/* Recommendations Section */
+
+/* Adjust the position and style of the navigation arrows */
+.carousel-control-prev, .carousel-control-next {
+  width: 5%; /* Make the clickable area smaller */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.5); /* Add a background to the arrow for visibility */
+  border-radius: 50%; /* Make it circular */
+  width: 30px;
+  height: 30px;
+}
+
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L6.707 7l4.647 4.646a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 0 1 .708 0z'/%3E%3C/svg%3E");
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1 0 .708l-5 5a.5.5 0 1 1-.708-.708L9.293 8 4.646 3.354a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
 }

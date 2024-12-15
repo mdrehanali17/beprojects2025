@@ -55,7 +55,6 @@ def build_collaborative_score(user_id):
 
     # Convert to DataFrame
     interaction_data = pd.DataFrame(list(interactions))
-    print(interaction_data)
     # Create a user-item matrix (2D)
     user_item_matrix = interaction_data.pivot_table(
         index='user_id',

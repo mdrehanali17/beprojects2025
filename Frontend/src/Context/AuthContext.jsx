@@ -15,6 +15,21 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    const refreshAccessToken = async () => {
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/token/refresh/', {
+                refresh: authTokens.refresh,
+            });
+
+            const newTokens = response.data;
+            setAuthTokens(newTokens);
+            localStorage.setItem('authTokens', JSON.stringify(newTokens));
+        } catch (error) {
+            console.error('Error refreshing token:', error);
+            logoutUser(); // Log out if refresh fails
+        }
+    };
+
     const signinUser = async (email, password) => {
         try {
             const response = await axios.post('http://127.0.0.1:8000/api/signin/', {
@@ -62,8 +77,8 @@ export const AuthProvider = ({ children }) => {
             const decodedToken = jwtDecode(authTokens.access);
 
             if (decodedToken.exp * 1000 < Date.now()) {
-                // Token is expired, log out user
-                logoutUser();
+                // Token is expired, refresh it
+                refreshAccessToken();
             } else {
                 // Fetch additional user details after token refresh or initial load
                 const fetchUserDetails = async () => {

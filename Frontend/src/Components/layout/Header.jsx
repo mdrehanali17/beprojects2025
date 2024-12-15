@@ -9,7 +9,7 @@ const Header = () => {
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top-navbar">
             <div className="container-fluid">
                 <Link className="navbar-brand" to="/">
-                    <img src="/Images/logo.png" alt="Brand Logo" height="50" className="d-inline-block align-text-top" />
+                    <img src="/Images/logo.png" alt="Brand Logo" height="100" className="d-inline-block align-text-top" />
                     GearGo Sports
                 </Link>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

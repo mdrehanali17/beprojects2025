@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../Context/AuthContext';
+import Recommendations from './Recommendations'; // Import Recommendations component
 
 const Home = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
-
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const videos = [
     '/Images/football1.mp4',
     '/Images/football2.mp4',
     '/Images/basketball.mp4',
-  ];   
+  ];
 
-  // Static game data for the "Choose a Game" section
   const games = [
     { id: 1, name: 'Football', image: '/Images/boys.jpg' },
     { id: 2, name: 'Cricket', image: '/Images/cricket.jpg' },
@@ -25,7 +26,6 @@ const Home = () => {
   ];
 
   useEffect(() => {
-    // Fetch sports by category data
     const fetchCategories = async () => {
       try {
         const response = await axios.get('http://127.0.0.1:8000/api/latest-sports/');
@@ -41,14 +41,6 @@ const Home = () => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentVideo((prev) => (prev + 1) % videos.length);
-    }, 3500); // Change video every 3.5 seconds
-    return () => clearInterval(interval);
-  }, [videos.length]);
-
-  // Static Content Section about the website
   const renderStaticContent = () => (
     <div className="static-content">
       <video
@@ -66,7 +58,6 @@ const Home = () => {
     </div>
   );
 
-  // Game Selection Section
   const renderGameSelection = () => (
     <div className="container mt-4">
       <h2>Choose a Game</h2>
@@ -91,8 +82,7 @@ const Home = () => {
       </div>
     </div>
   );
-  
-  // Sports by Category Section
+
   const renderSportsByCategory = () => (
     <div className="container mt-5">
       <h2>Recently Added</h2>
@@ -144,6 +134,7 @@ const Home = () => {
   return (
     <div style={{ marginTop: '80px' }}>
       {renderStaticContent()}
+      {user && <Recommendations user={user} />} {/* Render Recommendations */}
       {renderGameSelection()}
       {renderSportsByCategory()}
     </div>
