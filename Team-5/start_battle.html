@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Battle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+     :root {
+        --primary-color: #4a4eee;
+        --secondary-color: #3426cf;
+        --background-gradient: linear-gradient(
+            120deg,
+            hsl(240deg 100% 20%) 0%,
+            hsl(234deg 100% 23%) 18%,
+            hsl(228deg 100% 25%) 26%,
+            hsl(222deg 100% 27%) 33%,
+            hsl(217deg 100% 30%) 39%,
+            hsl(211deg 100% 33%) 44%,
+            hsl(205deg 100% 35%) 50%,
+            hsl(199deg 100% 37%) 56%,
+            hsl(194deg 100% 40%) 61%,
+            hsl(188deg 100% 43%) 67%,
+            hsl(182deg 100% 45%) 74%,
+            hsl(176deg 100% 47%) 82%,
+            hsl(170deg 100% 50%) 100%
+        ); /* Blue gradient */
+        --card-background: rgba(255, 255, 255, 0.9);
+        --text-color: #333;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: var(--background-gradient);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+        overflow: hidden;
+    }
+    
+    .container {
+        width: 95%;
+        max-width: 900px;
+        background: var(--card-background);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+        transform-style: preserve-3d;
+        transform: rotateX(10deg) rotateY(-10deg);
+    }
+    
+    .camera-feed {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 150px;
+        height: 120px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border: 3px solid var(--primary-color);
+    }
+    
+    #camera {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensure the video scales to fill the box */
+    }
+    
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .header h1 {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        background: rgba(115, 103, 240, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    #status, #players, #timer {
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+    
+    #question-container {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    #question-text {
+        font-size: 1.8rem;
+        color: var(--text-color);
+        margin-bottom: 25px;
+    }
+    
+    .options-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        justify-content: center; /* Center the entire container */
+        align-items: center; /* Align items vertically in the center */
+        justify-items: center; /* Align grid items horizontally */
+        height: 100%; /* Ensure it takes up the full available space */
+    }
+    
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        justify-content: center; /* Center the content vertically inside the container */
+        align-items: center; /* Align the items horizontally inside the container */
+    }
+    
+    .options button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(74, 78, 238, 0.3);
+        width: 100%; /* Full width within the grid cell */
+        max-width: 300px; /* Limit maximum width */
+        justify-self: center; /* Center the button within its grid cell */
+    }
+    
+    .options button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(74, 78, 238, 0.4);
+    }
+    
+    .options button.selected {
+        background-color: var(--secondary-color);
+        transform: scale(1.05);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .options-container {
+            grid-template-columns: 1fr;
+        }
+    
+        .options {
+            gap: 15px;
+        }
+    }
+    
+    #winner-container {
+        text-align: center;
+    }
+    
+    #winner-text {
+        color: var(--primary-color);
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+    
+    #winner-details {
+        color: var(--text-color);
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+    }
+    
+    .button {
+        display: inline-block;
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(115, 103, 240, 0.4);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container {
+            width: 98%;
+            padding: 20px;
+        }
+    
+        .camera-feed {
+            width: 100px;
+            height: 80px;
+        }
+    
+        .header h1 {
+            font-size: 2rem;
+        }
+    
+        .options-container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Face detection and proctoring messages */
+    #face-message, #face-detection, #gaze-tracking {
+        font-weight: 500;
+        color: var(--secondary-color);
+        text-align: center;
+        margin: 10px 0;
+    }
+    </style>
+    
+</head>
+<body>
+
+    <div class="container">
+        <!-- Camera feed container -->
+        <div class="camera-feed">
+            <video id="camera" autoplay muted></video>
+        </div>
+        <p class="face-message" id="face-message">Face not detected</p>
+        <!--TODO HERER-->
+        <div id="face-detection" style="visibility:hidden">Face Detection: Not detected</div>
+        <div id="gaze-tracking" style="visibility:hidden" >Gaze Tracking: Center</div>
+        <!--and here-->
+        <h1>Quiz Battle: {{ quiz.name }}</h1>
+        <p id="qtimer">Per Question Timer: 15 sec</p>
+        <p class="message" id="status">Waiting for opponent...</p>
+        <p id="players">Players: Waiting for opponents...</p>
+        <p id="timer"></p>
+        
+        <!-- Question Container -->
+        <div id="question-container">
+            <h2 id="question-text"></h2>
+            <div class="options-container">
+                <div class="options">
+                    <button class="button" id="option1" onclick="submitAnswer('1')">Option 1</button>
+                    <button class="button" id="option2" onclick="submitAnswer('2')">Option 2</button>
+                </div>
+                <div class="options">
+                    <button class="button" id="option3" onclick="submitAnswer('3')">Option 3</button>
+                    <button class="button" id="option4" onclick="submitAnswer('4')">Option 4</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Winner Container -->
+        <div id="winner-container">
+            <h2 id="winner-text"></h2>
+            <p id="winner-details"></p>
+            <a id="goBackButton" class="button" href="{% url 'game-start' %}">Go Back</a>
+        </div>
+
+        <!-- Analytics Summary -->
+        <div id="analytics-container" style="display:none;">
+            <h2>Quiz Summary</h2>
+            <p id="player-analytics"></p>
+            <ul id="question-summary"></ul>
+            <a class="button" href="{% url 'game-start' %}">Back to Main Menu</a>
+        </div>
+    </div>
+
+   
+    <script type="text/javascript">
+        const quizId = "{{ quiz.id }}";
+        const battleId = "{{ unique_battle_id }}";
+        const username = "{{ request.user.username }}";
+        const wsUrl = `ws://${window.location.host}/ws/quiz/${quizId}/${battleId}`;
+        const chatSocket = new WebSocket(wsUrl);
+        
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let timerInterval;
+        let timerDuration = 15;
+        let answersGiven = 0;
+        let playernames = {};
+
+        const camera = document.getElementById('camera');
+        const faceMessage = document.getElementById('face-message');
+        let faceNotDetectedCounter = 0;
+        let alertCount = 0;
+        let disqualified = false;
+
+        document.getElementById('quiz-name').textContent = "{{ quiz.name }}";
+
+        chatSocket.onopen = function() {
+            console.log('WebSocket connection established');
+            chatSocket.send(JSON.stringify({
+                type: 'join',
+                username: username
+            }));
+        };
+    
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+            
+            if (data.type === 'player_join') {
+                document.getElementById('players').textContent = `Players: ${data.players.join(' vs ')}`;
+                data.players.forEach(player => playernames[player] = player);
+            } else if (data.type === 'battle_start') {
+                questions = data.questions;
+                displayQuestion();
+            } else if (data.type === 'next_question') {
+                currentQuestionIndex = data.question_index;
+                displayQuestion();
+            } else if (data.type === 'battle_over') {
+                displayWinner(data);
+            }
+        };
+    
+        chatSocket.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+    
+        function displayQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                document.getElementById('question-container').style.display = 'block';
+                document.getElementById('winner-container').style.display = 'none';
+                document.getElementById('qtimer').style.display = 'none';
+    
+                document.getElementById('timer').style.display = 'block';
+    
+                document.getElementById('question-text').textContent = question.text;
+                document.getElementById('option1').textContent = question.option1;
+                document.getElementById('option2').textContent = question.option2;
+                document.getElementById('option3').textContent = question.option3;
+                document.getElementById('option4').textContent = question.option4;
+    
+                const buttons = document.querySelectorAll('.options button');
+                buttons.forEach(button => {
+                    button.classList.remove('selected');
+                    button.disabled = false;
+                });
+    
+                startTimer();
+            }
+        }
+    
+        function startTimer() {
+            let timeLeft = timerDuration;
+            document.getElementById('timer').textContent = `Time left: ${timeLeft} seconds`;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `Time left: ${timeLeft} seconds`;
+                if (timeLeft <= 0) {
+                    submitAnswer(null);
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+    
+        function submitAnswer(answer) {
+            const buttons = document.querySelectorAll('.options button');
+            buttons.forEach(button => {
+                if (button.id === `option${answer}`) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
+                button.disabled = true;
+            });
+    
+            chatSocket.send(JSON.stringify({
+                type: 'answer',
+                username: username,
+                answer: answer,
+                question_id: questions[currentQuestionIndex].id
+            }));
+        }
+    
+        function displayWinner(data) {
+            clearInterval(timerInterval);
+            document.getElementById('question-container').style.display = 'none';
+            document.getElementById('winner-text').textContent = `Battle Over! Winner: ${data.winner}`;
+            
+            document.getElementById('winner-details').textContent = `Scores: ${data.scores[Object.keys(data.scores)[0]]} - ${data.scores[Object.keys(data.scores)[1]]}`;
+            document.getElementById('winner-container').style.display = 'block';
+        }
+
+        async function startFaceDetection() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = camera.videoWidth;
+            canvas.height = camera.videoHeight;
+
+            const ws = new WebSocket(`ws://${window.location.host}/ws/process-video`);
+
+            ws.onopen = function () {
+                console.log("Connected to WebSocket for face detection");
+                startWebcam();
+            };
+
+            ws.onmessage = function (event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log("Message from FastAPI:", data);
+
+                    updateFaceDetection(data.face_detection);
+                    updateGazeTracking(data.gaze_tracking);
+                } catch (e) {
+                    console.error("Failed to parse server response:", e);
+                }
+            };
+
+            function startWebcam() {
+                setInterval(() => {
+                    context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(function (blob) {
+                        ws.send(blob);
+                    }, 'image/jpeg');
+                }, 100);
+            }
+        }
+
+        function updateFaceDetection(data) {
+            const faceDetectionElement = document.getElementById("face-detection");
+            if (faceDetectionElement) {
+                faceDetectionElement.textContent = "Face Detection: " + data.message;
+                faceDetectionElement.style.visibility = "visible";
+            }
+        }
+
+        function updateGazeTracking(data) {
+            const gazeTrackingElement = document.getElementById("gaze-tracking");
+            if (gazeTrackingElement) {
+                gazeTrackingElement.textContent = "Gaze Tracking: " + data.message;
+                gazeTrackingElement.style.visibility = "visible";
+                console.log("Gaze Message: ", data.message);
+
+                if (data.message !== "Gaze: Straight" && !alertShown) {
+                    alert("Your gaze is not straight. Please look directly at the camera.");
+                    alertShown = true;
+                    alertCount++;
+                } else if (data.message === "Gaze: Straight" && alertShown) {
+                    alertShown = false;
+                }
+                if (alertCount >= 5) {
+                    alert("You have crossed the limit of 5 alerts. The quiz will now end for you.");
+                    endQuizForPlayer();
+                }
+            }
+        }
+
+        // Start the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                camera.srcObject = stream;
+                camera.onloadedmetadata = () => {
+                    startFaceDetection();
+                };
+            })
+            .catch(error => {
+                console.error("Error accessing camera:", error);
+            });
+
+        // Tab switch detection
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                alert("Please do not switch tabs during the quiz.");
+            }
+        });
+    </script>
+    
+</body>
+</html>
