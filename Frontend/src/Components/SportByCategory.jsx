@@ -59,7 +59,7 @@ const SportByCategory = () => {
               )}
               <div className="card-body">
                 <h4 className="card-title text-center">{sport.name}</h4>
-                <p className="card-text">{sport.description}</p>
+                <p className="card-text truncate-description">{sport.description}</p>
                 <p className="card-text text-center">
                   <strong>Price:</strong> Rs. {sport.price}
                 </p>

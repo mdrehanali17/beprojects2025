@@ -26,7 +26,6 @@ const SportDetails = () => {
         
         // Only increase view count if user exists and view count has not been increased yet
         if (user && !viewCountIncreased.current) {
-          console.log("Increasing view count");
           await axios.post(`http://127.0.0.1:8000/api/increase_view_count/${id}/`, { user_id: user.id });
           
           // Set the ref to true after the view count is incremented
@@ -57,8 +56,8 @@ const SportDetails = () => {
   }
 
   return (
-    <div className="container text-center mt-5">
-      <div className="carousel-container" style={{ maxWidth: '850px', margin: '0 auto' }}>
+    <div className="container text-center mt-80">
+      <div className="carousel-container" style={{ maxWidth: '850px', margin: '0 auto', marginTop:'90px' }}>
         <Carousel fade>
           {sportDetails.sport_images.map((imageObj, index) => (
             <Carousel.Item key={index}>

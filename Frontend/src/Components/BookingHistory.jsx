@@ -61,7 +61,7 @@ const BookingHistory = () => {
             <h2 className="text-center mb-4">Booking History</h2>
 
             {/* Sport Category Filter Dropdown */}
-            <div className="text-center mb-3">
+            {/* <div className="text-center mb-3">
                 <select 
                     value={selectedSportCategory} 
                     onChange={e => setSelectedSportCategory(e.target.value)} 
@@ -70,9 +70,8 @@ const BookingHistory = () => {
                     <option value="Football">Football</option>
                     <option value="Basketball">Basketball</option>
                     <option value="Cricket">Cricket</option>
-                    {/* Add more sport categories as needed */}
                 </select>
-            </div>
+            </div> */}
 
             <table className="booking-table">
                 <thead>

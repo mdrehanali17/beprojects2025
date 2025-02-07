@@ -129,6 +129,22 @@ h2 {
 }
 
 
+.truncate-description {
+  display: -webkit-box; /* Required for line clamping */
+  display: -moz-box;    /* Mozilla prefix for older compatibility */
+  display: -ms-flexbox; /* Microsoft prefix for older compatibility */
+  display: box;         /* Standard box model fallback */
+  
+  -webkit-line-clamp: 3; /* Limits text to 4 lines */
+  -moz-line-clamp: 3;    /* Mozilla prefix (if supported in future) */
+  line-clamp: 3;         /* Standard property */
+  
+  -webkit-box-orient: vertical; /* Required for webkit line clamp */
+  overflow: hidden;             /* Prevents overflow of text */
+  text-overflow: ellipsis;      /* Adds "..." at the end */
+}
+
+
 /* for SignIn and SignUp page */
 
 .auth-container {

@@ -41,6 +41,13 @@ const Home = () => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentVideo((prev) => (prev + 1) % videos.length);
+    }, 4200); // Change video every 3.5 seconds
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
   const renderStaticContent = () => (
     <div className="static-content">
       <video
@@ -106,7 +113,7 @@ const Home = () => {
                   )}
                   <div className="card-body">
                     <h4 className="card-title text-center">{sport.name}</h4>
-                    <p className="card-text">{sport.description}</p>
+                    <p className="card-text truncate-description">{sport.description}</p>
                     <p className="card-text text-center">
                       <strong>Price:</strong> Rs. {sport.price}
                     </p>
@@ -134,7 +141,7 @@ const Home = () => {
   return (
     <div style={{ marginTop: '80px' }}>
       {renderStaticContent()}
-      {user && <Recommendations user={user} />} {/* Render Recommendations */}
+      {user && <Recommendations user={user} />} 
       {renderGameSelection()}
       {renderSportsByCategory()}
     </div>

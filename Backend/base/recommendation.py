@@ -1,193 +1,194 @@
-from django.db.models import Q, Count, Avg
+from django.db.models import Q, Count, Avg, Sum
 from .models import SportDetails, UserSportInteraction, Booking
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.decomposition import TruncatedSVD
-
 import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_extraction.text import CountVectorizer
 
+# Function for Content-Based Filtering
+def content_based_filtering(user_id):
+    try:
+        sports = SportDetails.objects.values('id', 'category', 'price', 'location')
+        sportdetails = pd.DataFrame(list(sports))
+        if sportdetails.empty:
+            print("No sports details found.")
+            return pd.DataFrame()  
 
-def build_content_based_score():
-    """
-    Calculate content-based scores using cosine similarity.
-    Features: category, price, location, description.
-    """
-    # Fetch sports data
-    sports = SportDetails.objects.values('id', 'category', 'price', 'location', 'description')
+        user_interactions = UserSportInteraction.objects.filter(user_id=user_id).values(
+            'sport_id', 'view_count', 'booking_count'
+        )
+        usersportinteraction = pd.DataFrame(list(user_interactions))
 
-    # Convert to DataFrame
-    sport_data = pd.DataFrame(list(sports))
+        if usersportinteraction.empty:
+            print("No user interactions found.")
+            return pd.DataFrame()
 
-    if sport_data.empty:
-        return pd.DataFrame()  
-    
-    # Process categorical fields (category and location) using one-hot encoding
-    sport_data = pd.get_dummies(sport_data, columns=['category', 'location'])
+        print("User interactions data:", usersportinteraction)
 
-    # Convert textual descriptions into numeric features using a simple word count
-    sport_data['description_length'] = sport_data['description'].apply(lambda x: len(str(x).split()))
+        # Adjust weights for view_count and booking_count
+        view_weight = 0.3
+        booking_weight = 0.7
 
-    # Normalize price and description length to scale them between 0 and 1
-    sport_data['price'] = sport_data['price'] / sport_data['price'].max()
-    sport_data['description_length'] = sport_data['description_length'] / sport_data['description_length'].max()
+        usersportinteraction['interaction_score'] = usersportinteraction['view_count'] * view_weight + usersportinteraction['booking_count'] * booking_weight
+        interaction_scores = usersportinteraction[['sport_id', 'interaction_score']].drop_duplicates().set_index('sport_id')
 
-    # Prepare feature matrix
-    feature_matrix = sport_data.drop(columns=['id', 'description'])
-    # Compute cosine similarity
-    similarity_matrix = cosine_similarity(feature_matrix)
+        interaction_scores = interaction_scores[~interaction_scores.index.duplicated(keep='first')]
+        sportdetails['interaction_score'] = sportdetails['id'].map(interaction_scores['interaction_score']).fillna(0)
 
-    # Add similarity scores to DataFrame
-    sport_data['content_score'] = similarity_matrix.mean(axis=1)
+        vectorizer = CountVectorizer()
+        sport_matrix = vectorizer.fit_transform(sportdetails['category'])
+        similarity_matrix = cosine_similarity(sport_matrix)
+        
+        similarity_scores = similarity_matrix.dot(sportdetails['interaction_score'])
+        scaler = MinMaxScaler()
+        sportdetails['interaction_score'] = scaler.fit_transform(sportdetails[['interaction_score']])
+        similarity_scores = scaler.fit_transform(similarity_scores.reshape(-1, 1)).flatten()
 
-    return sport_data[['id', 'content_score']]
+        sportdetails['similarity_score'] = similarity_scores
+        content_recommendations = sportdetails.sort_values('similarity_score', ascending=False)
 
+        content_scores = content_recommendations.set_index('id')['similarity_score']
+        content_scores.name = 'content_score'
+        return content_scores
 
-def build_collaborative_score(user_id):
-    """
-    Calculate collaborative filtering scores using matrix factorization (SVD).
-    Features: view_count and booking_count.
-    """
-    # Fetch user interactions (view and booking counts)
-    interactions = UserSportInteraction.objects.values('user_id', 'sport_id', 'view_count', 'booking_count')
+    except Exception as e:
+        print(f"Error in content_based_filtering: {e}")
+        return pd.DataFrame()
 
-    if not interactions:
-        return pd.DataFrame()  # Return empty DataFrame if no interactions
+# Function for Collaborative Filtering
+def collaborative_filtering(user_id):
+    try:
+        interactions = UserSportInteraction.objects.values('user_id', 'sport_id', 'view_count', 'booking_count')
+        if not interactions:
+            print("No interactions found.")
+            return pd.DataFrame()
+        
+        interaction_data = pd.DataFrame(list(interactions))
+        user_item_matrix = interaction_data.pivot_table(
+            index='user_id',
+            columns='sport_id',
+            values='booking_count',
+            aggfunc='sum',
+            fill_value=0
+        )
 
-    # Convert to DataFrame
-    interaction_data = pd.DataFrame(list(interactions))
-    # Create a user-item matrix (2D)
-    user_item_matrix = interaction_data.pivot_table(
-        index='user_id',
-        columns='sport_id',
-        values=['view_count', 'booking_count'],
-        aggfunc='sum',
-        fill_value=0
-    )
+        if user_item_matrix.shape[1] <= 1:
+            print("User item matrix has less than or equal to 1 column.")
+            return pd.DataFrame()
 
-    # Check if the matrix has at least two features
-    if user_item_matrix.shape[1] <= 1:
-        return pd.DataFrame()  # Return empty DataFrame if there is only one sport feature
+        print("User item matrix:\n", user_item_matrix)
+        
+        user_similarity = cosine_similarity(user_item_matrix)
+        user_index = user_item_matrix.index.get_loc(user_id)
+        user_similarity_scores = user_similarity[user_index]
 
-    # Combine 'view_count' and 'booking_count' into a single column (interaction score)
-    user_item_matrix['interaction_score'] = user_item_matrix[['view_count', 'booking_count']].sum(axis=1)
+        similar_users = user_item_matrix.index[user_similarity_scores.argsort()[::-1][1:]]
+        collaborative_recommendations = user_item_matrix.loc[similar_users].mean(axis=0).sort_values(ascending=False)
+        
+        # Scaling the collaborative scores
+        scaler = MinMaxScaler()
+        collaborative_scores = scaler.fit_transform(collaborative_recommendations.values.reshape(-1, 1)).flatten()
 
-    # Ensure the interaction_score is 2D by selecting the right columns
-    interaction_score_matrix = user_item_matrix[['interaction_score']].values
+        collaborative_scores = pd.Series(collaborative_scores, index=collaborative_recommendations.index, name='collaborative_score')
 
-    # Check if the interaction score matrix has more than one column (feature)
-    if interaction_score_matrix.shape[1] <= 1:
-        return pd.DataFrame()  # Return empty DataFrame if there's not enough data for SVD
+        print("Collaborative scores:", collaborative_scores)
+        return collaborative_scores
 
-    # Perform SVD(Singular Value Decomposition) for collaborative filtering
-    svd = TruncatedSVD(n_components=2)
-    user_factors = svd.fit_transform(interaction_score_matrix)  # Fit on the 2D matrix
-    item_factors = svd.components_.T
-    predicted_matrix = np.dot(user_factors, item_factors)
+    except Exception as e:
+        print(f"Error in collaborative_filtering: {e}")
+        return pd.DataFrame()
 
-    # Map predicted scores back to facility IDs
-    predicted_scores = pd.DataFrame(
-        predicted_matrix, index=user_item_matrix.index, columns=user_item_matrix.columns.droplevel()
-    )
+# Function for Hybrid Recommendation
+def hybrid_recommendation(user_id, alpha=0.3):  # Adjust alpha for better balancing
+    try:
+        content_scores = content_based_filtering(user_id)
+        collaborative_scores = collaborative_filtering(user_id)
 
-    # Check if the user_id is in the predicted scores
-    if user_id in predicted_scores.index:
-        user_scores = predicted_scores.loc[user_id].reset_index()
-        user_scores.columns = ['id', 'collaborative_score']
-        return user_scores
+        if content_scores.empty and collaborative_scores.empty:
+            return fallback_recommendations()
+        
+        if content_scores.empty:
+            content_scores = pd.Series(0, index=collaborative_scores.index, name='content_score')
+        
+        if collaborative_scores.empty:
+            collaborative_scores = pd.Series(0, index=content_scores.index, name='collaborative_score')
 
-    return pd.DataFrame() 
-
-
-def fallback_recommendations():
-    """
-    Handle cold-start scenarios by recommending the most popular and recently added sports.
-    """
-    # Fetch most popular and recently added facilities
-    sports = SportDetails.objects.annotate(
-        total_bookings=Count('booking')
-    ).order_by('-total_bookings', '-created_at')[:5]
-
-    result = []
-    for sport in sports:
-        # Get sport images for the sport using the related_name 'sport_images'
-        sport_images = sport.sport_images.all()  # Corrected line
-        images = [{"image": image.image.url} for image in sport_images]
-
-        # Prepare the response structure with full details
-        result.append({
-            "id": sport.id,
-            "name": sport.name,
-            "description": sport.description,  # Add description
-            "price": sport.price,  # Add price
-            "sport_images": images,  # Add images
-            "sport_custom_id": sport.sport_custom_id,  # Add sport_custom_id
-            "category": sport.category,  # Add category
-            "location": sport.location  # Add location
-        })
-
-    # Return the structured response as per the required format
-    return result
-
-
-def hybrid_recommendation(user_id, alpha=0.5):
-    """
-    Combine content-based and collaborative filtering scores to generate hybrid recommendations.
-    """
-    # Get content-based and collaborative scores
-    content_scores = build_content_based_score()
-    collaborative_scores = build_collaborative_score(user_id)
-
-    # Merge scores on the sport ID
-    if not content_scores.empty and not collaborative_scores.empty:
-        combined_scores = pd.merge(content_scores, collaborative_scores, on='id', how='outer').fillna(0)
-
-        # Compute the hybrid score
+        # Combine the scores with alpha weighting
+        combined_scores = pd.concat([content_scores, collaborative_scores], axis=1).fillna(0)
         combined_scores['hybrid_score'] = (
             alpha * combined_scores['collaborative_score'] + (1 - alpha) * combined_scores['content_score']
         )
 
-        # Sort by hybrid score and get top 3 recommendations
         recommendations = combined_scores.sort_values(by='hybrid_score', ascending=False)
         top_recommendations = recommendations.head(3)
 
-        # Fetch the details for the top 3 recommendations
-        sports_details = SportDetails.objects.filter(id__in=top_recommendations['id'].values)
+        print("Combined scores:\n", combined_scores)
+        print("Top recommendations:\n", top_recommendations)
+
+        recommended_ids = top_recommendations.index.values
+        sports_details = SportDetails.objects.filter(id__in=recommended_ids)
+
+        sports_dict = {sport.id: sport for sport in sports_details}
+
         result = []
-        for sport in sports_details:
-            # Get sport images for the sport
-            sport_images = sport.sport_images.all()
-            images = [{"image": image.image.url} for image in sport_images]
+        for sport_id in recommended_ids:
+            sport = sports_dict.get(sport_id)
+            if sport:
+                sport_images = sport.sport_images.all()
+                images = [{"image": image.image.url} for image in sport_images]
 
-            # Prepare the response structure with full details
-            result.append({
-                "id": sport.id,
-                "name": sport.name,
-                "description": sport.description,  # Add description
-                "price": sport.price,  # Add price
-                "sport_images": images,  # Add images
-                "sport_custom_id": sport.sport_custom_id,  # Add sport_custom_id
-                "category": sport.category,  # Add category
-                "location": sport.location  # Add location
-            })
+                result.append({
+                    "id": sport.id,
+                    "name": sport.name,
+                    "description": sport.description,
+                    "price": sport.price,
+                    "sport_images": images,
+                    "sport_custom_id": sport.sport_custom_id,
+                    "category": sport.category,
+                    "location": sport.location
+                })
 
-        # Return the full details of the recommended sports
         return result
-    
 
-    # If either score is missing, fallback to popular/recent recommendations
-    return fallback_recommendations()
+    except Exception as e:
+        print(f"Error in hybrid_recommendation: {e}")
+        return []
 
+# Function for fallback recommendations
+def fallback_recommendations():
+    sports = SportDetails.objects.annotate(
+        total_bookings=Count('booking')
+    ).order_by('-total_bookings', '-created_at')[:3]
 
+    result = []
+    for sport in sports:
+        sport_images = sport.sport_images.all()
+        images = [{"image": image.image.url} for image in sport_images]
+
+        result.append({
+            "id": sport.id,
+            "name": sport.name,
+            "description": sport.description,
+            "price": sport.price,
+            "sport_images": images,
+            "sport_custom_id": sport.sport_custom_id,
+            "category": sport.category,
+            "location": sport.location
+        })
+
+    return result
+
+# Function to get recommendations
 def get_recommendations(user_id):
-    """
-    Main function to fetch recommendations for a given user.
-    """
-    # Check if the user exists in interactions
-    user_exists = UserSportInteraction.objects.filter(user__id=user_id).exists()
+    try:
+        user_exists = UserSportInteraction.objects.filter(user__id=user_id).exists()
 
-    if not user_exists:
-        # If no interactions, return fallback recommendations
-        return fallback_recommendations()
+        if not user_exists:
+            return fallback_recommendations()
 
-    # Generate hybrid recommendations
-    return hybrid_recommendation(user_id)
+        return hybrid_recommendation(user_id)
+
+    except Exception as e:
+        print(f"Error in get_recommendations: {e}")
+        return []
