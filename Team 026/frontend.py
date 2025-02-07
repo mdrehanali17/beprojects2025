@@ -7,7 +7,8 @@ import pathlib
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
-st.set_page_config(layout="wide")
+im = Image.open('logo.png')
+st.set_page_config(layout="wide", page_title="E-Waste Detection App", page_icon = im)
 
 cfg_model_path = 'models/yolov5s.pt'
 model = None
@@ -90,7 +91,7 @@ def count_objects(detections):
 def main():
     global model, confidence, cfg_model_path
 
-    st.title("Waste Recognition Dashboard")
+    st.title("E-Waste Detection Dashboard")
     st.sidebar.title("Settings")
 
     model_src = st.sidebar.radio("Select yolov5 weight file", ["Use demo model", "Use your own model"])
