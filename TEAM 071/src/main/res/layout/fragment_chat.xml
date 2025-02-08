@@ -1,0 +1,94 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <!-- Box for Image Upload -->
+    <LinearLayout
+        android:id="@+id/imageContainer"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/box_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- ImageView Placeholder -->
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/baseline_upload_24"
+            android:contentDescription="Upload Icon"
+            android:scaleType="centerInside"
+            app:tint="#9E9E9E" />
+
+        <!-- Upload Prompt -->
+        <TextView
+            android:id="@+id/uploadPromptText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap to upload an image"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <!-- Generate Button -->
+    <Button
+        android:id="@+id/generateButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageContainer"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        android:backgroundTint="#673AB7"
+        android:text="Generate Suggestions"
+        android:textColor="#FFFFFF"
+        android:padding="10dp" />
+
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <!-- Response Box -->
+    <LinearLayout
+        android:id="@+id/responseBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/generateButton"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/box_background">
+
+        <TextView
+            android:id="@+id/resultTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Suggestions:"
+            android:textColor="#424242"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/resultTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Color combinations will appear here."
+            android:textColor="#616161"
+            android:paddingTop="8dp"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</RelativeLayout>

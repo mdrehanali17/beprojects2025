@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147734229402",
+    "project_id": "stylematee-backend",
+    "storage_bucket": "stylematee-backend.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147734229402:android:f9add510a266488d09ca23",
+        "android_client_info": {
+          "package_name": "com.example.stylematee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNRM95j3kcICCjJyTZjTcEHMt_qb9eMhc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
