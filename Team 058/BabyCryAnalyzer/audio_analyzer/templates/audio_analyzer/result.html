@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analysis Result</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            padding: 50px;
+            background-color: #ffebcc;
+            color: #ff7f50;
+            font-family: 'Lucida Handwriting', cursive;
+            font-size: 3rem;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .main-content {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #ff7f50;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .emotion-state {
+            font-size: 1.8rem;
+            color: #333;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        #lullaby-audio {
+            width: 100%;
+            margin-top: 20px;
+            outline: none;
+        }
+
+        .baby-section {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            background-color: #fce4ec;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            max-width: 80%;
+            margin: auto;
+        }
+
+        .baby-image {
+            width: 80%;
+            max-width: 500px;
+            margin-top: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .baby-description {
+            font-size: 1.4rem;
+            color: #555;
+            font-style: italic;
+            margin: 20px 0;
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+        }
+
+        .farewell-message {
+            text-align: center;
+            padding: 30px;
+            color: #ff6f61;
+            font-family: 'Arial', sans-serif;
+            margin-top: 30px;
+        }
+
+        .farewell-message h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #d84315;
+            font-family: 'Lucida Handwriting', cursive;
+        }
+
+        .farewell-message h2 {
+            font-size: 1.8rem;
+            color: #ff7043;
+        }
+
+        .decorative-line {
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(to right, #ff7f50, #ffebcc, #ff7f50);
+            margin: 30px auto;
+            border-radius: 2px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #ffebcc;
+            color: #333;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        Emotion Analysis Result
+    </div>
+
+    <div class="main-content">
+        <h1>Detected Emotion</h1>
+        <p class="emotion-state">{{ emotional_state }}</p>
+
+        <p><strong>Lullaby for Emotion:</strong></p>
+
+        <audio id="lullaby-audio" controls>
+            <source src="{{ lullaby_path }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="baby-section">
+            <img src="{% static 'images/cute_baby.jpeg' %}" alt="Cute Baby" class="baby-image">
+            <p class="baby-description">Look at this adorable little one! Such innocence and joy bring warmth to our hearts.</p>
+        </div>
+
+        <div class="decorative-line"></div>
+    </div>
+    <br>
+    <button onclick="window.location.href='/'">Go Back</button>
+
+    <div class="farewell-message">
+        <h1>Goodbye!</h1>
+        <h2>We hope to see you again soon!</h2>
+    </div>
+
+    <script>
+
+        window.addEventListener('load', function() {
+            var audio = document.getElementById("lullaby-audio");
+            audio.play().catch(error => {
+                console.log("Autoplay failed:", error);
+            });
+        });
+    </script>
+
+    <div class="footer">
+        &copy; 2024 Baby Emotion Analyzer. All rights reserved.
+    </div>
+</body>
+</html>
